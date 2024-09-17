@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dao.ZhiliaoxinxiDao">
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        a.id as id
+        ,a.huanzhe_id as huanzheId
+        ,a.zhiliaoxinxi_uuid_number as zhiliaoxinxiUuidNumber
+        ,a.ganranyuan as ganranyuan
+        ,a.zhongzheng_types as zhongzhengTypes
+        ,a.zhuyuan_time as zhuyuanTime
+        ,a.fabing_zhengzhuang as fabingZhengzhuang
+        ,a.zhenzhiyiyuan as zhenzhiyiyuan
+        ,a.hesuanjiance_text as hesuanjianceText
+        ,a.ctjiance_text as ctjianceText
+        ,a.zhiliaoxinxi_content as zhiliaoxinxiContent
+        ,a.insert_time as insertTime
+        ,a.create_time as createTime
+    </sql>
+    <select id="selectListView" parameterType="map" resultType="com.entity.view.ZhiliaoxinxiView" >
+        SELECT
+        <include refid="Base_Column_List" />
+
+--         级联表的字段
+        ,huanzhe.huanzhe_name as huanzheName
+        ,huanzhe.huanzhe_phone as huanzhePhone
+        ,huanzhe.huanzhe_id_number as huanzheIdNumber
+        ,huanzhe.huanzhe_photo as huanzhePhoto
+        ,huanzhe.sex_types as sexTypes
+        ,huanzhe.huanzhe_email as huanzheEmail
+        ,huanzhe.huanzhe_zhuzhi as huanzheZhuzhi
+
+        FROM zhiliaoxinxi  a
+        left JOIN huanzhe huanzhe ON a.huanzhe_id = huanzhe.id
+
+        <where>
+            <if test="params.ids != null">
+                and a.id in
+                <foreach item="item" index="index" collection="params.ids" open="(" separator="," close=")">
+                #{item}
+                </foreach>
+            </if>
+            <if test="params.huanzheId != null and params.huanzheId != ''">
+                and (
+                    a.huanzhe_id = #{params.huanzheId}
+                )
+            </if>
+            <if test=" params.zhiliaoxinxiUuidNumber != '' and params.zhiliaoxinxiUuidNumber != null and params.zhiliaoxinxiUuidNumber != 'null' ">
+                and a.zhiliaoxinxi_uuid_number like CONCAT('%',#{params.zhiliaoxinxiUuidNumber},'%')
+            </if>
+            <if test=" params.ganranyuan != '' and params.ganranyuan != null and params.ganranyuan != 'null' ">
+                and a.ganranyuan like CONCAT('%',#{params.ganranyuan},'%')
+            </if>
+            <if test="params.zhongzhengTypes != null and params.zhongzhengTypes != ''">
+                and a.zhongzheng_types = #{params.zhongzhengTypes}
+            </if>
+            <if test=" params.zhuyuanTimeStart != '' and params.zhuyuanTimeStart != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.zhuyuan_time) >= UNIX_TIMESTAMP(#{params.zhuyuanTimeStart}) ]]>
+            </if>
+            <if test=" params.zhuyuanTimeEnd != '' and params.zhuyuanTimeEnd != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.zhuyuan_time) <= UNIX_TIMESTAMP(#{params.zhuyuanTimeEnd}) ]]>
+            </if>
+            <if test=" params.fabingZhengzhuang != '' and params.fabingZhengzhuang != null and params.fabingZhengzhuang != 'null' ">
+                and a.fabing_zhengzhuang like CONCAT('%',#{params.fabingZhengzhuang},'%')
+            </if>
+            <if test=" params.zhenzhiyiyuan != '' and params.zhenzhiyiyuan != null and params.zhenzhiyiyuan != 'null' ">
+                and a.zhenzhiyiyuan like CONCAT('%',#{params.zhenzhiyiyuan},'%')
+            </if>
+            <if test=" params.hesuanjianceText != '' and params.hesuanjianceText != null and params.hesuanjianceText != 'null' ">
+                and a.hesuanjiance_text like CONCAT('%',#{params.hesuanjianceText},'%')
+            </if>
+            <if test=" params.ctjianceText != '' and params.ctjianceText != null and params.ctjianceText != 'null' ">
+                and a.ctjiance_text like CONCAT('%',#{params.ctjianceText},'%')
+            </if>
+            <if test=" params.zhiliaoxinxiContent != '' and params.zhiliaoxinxiContent != null and params.zhiliaoxinxiContent != 'null' ">
+                and a.zhiliaoxinxi_content like CONCAT('%',#{params.zhiliaoxinxiContent},'%')
+            </if>
+            <if test=" params.insertTimeStart != '' and params.insertTimeStart != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.insert_time) >= UNIX_TIMESTAMP(#{params.insertTimeStart}) ]]>
+            </if>
+            <if test=" params.insertTimeEnd != '' and params.insertTimeEnd != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.insert_time) <= UNIX_TIMESTAMP(#{params.insertTimeEnd}) ]]>
+            </if>
+
+                <!-- 判断患者的id不为空 -->
+            <if test=" params.huanzheIdNotNull != '' and params.huanzheIdNotNull != null and params.huanzheIdNotNull != 'null' ">
+                and a.huanzhe_id IS NOT NULL
+            </if>
+            <if test=" params.huanzheName != '' and params.huanzheName != null and params.huanzheName != 'null' ">
+                and huanzhe.huanzhe_name like CONCAT('%',#{params.huanzheName},'%')
+            </if>
+            <if test=" params.huanzhePhone != '' and params.huanzhePhone != null and params.huanzhePhone != 'null' ">
+                and huanzhe.huanzhe_phone like CONCAT('%',#{params.huanzhePhone},'%')
+            </if>
+            <if test=" params.huanzheIdNumber != '' and params.huanzheIdNumber != null and params.huanzheIdNumber != 'null' ">
+                and huanzhe.huanzhe_id_number like CONCAT('%',#{params.huanzheIdNumber},'%')
+            </if>
+            <if test="params.sexTypes != null  and params.sexTypes != ''">
+                and huanzhe.sex_types = #{params.sexTypes}
+            </if>
+
+            <if test=" params.huanzheEmail != '' and params.huanzheEmail != null and params.huanzheEmail != 'null' ">
+                and huanzhe.huanzhe_email like CONCAT('%',#{params.huanzheEmail},'%')
+            </if>
+            <if test=" params.huanzheZhuzhi != '' and params.huanzheZhuzhi != null and params.huanzheZhuzhi != 'null' ">
+                and huanzhe.huanzhe_zhuzhi like CONCAT('%',#{params.huanzheZhuzhi},'%')
+            </if>
+            <if test=" params.insertTimeStart != '' and params.insertTimeStart != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(huanzhe.insert_time) >= UNIX_TIMESTAMP(#{params.insertTimeStart}) ]]>
+            </if>
+            <if test=" params.insertTimeEnd != '' and params.insertTimeEnd != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(huanzhe.insert_time) <= UNIX_TIMESTAMP(#{params.insertTimeEnd}) ]]>
+            </if>
+        </where>
+
+        order by a.${params.orderBy} desc 
+    </select>
+
+</mapper>
